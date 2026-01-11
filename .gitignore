@@ -1,0 +1,30 @@
+# SBT build artifacts
+target/
+project/target/
+project/project/
+
+# IDE and editor
+.bsp/
+.bloop/
+.metals/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Compiled files
+*.class
+*.jar
+
+# Generated Verilog/FIRRTL
+generated/
+*.fir
+*.anno.json
+
+# Simulation outputs
+*.vcd
+*.fst
+test_run_dir/
+
+# OS files
+.DS_Store
