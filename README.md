@@ -151,35 +151,38 @@ The TPUControl FSM orchestrates the entire computation pipeline:
 stateDiagram-v2
     [*] --> sIdle
 
-    sIdle --> sIdle2: start asserted<br/><br/>Actions:<br/>• cnt ← 0<br/>• addrA/B/C ← 0
+    sIdle --> sIdle2: start asserted
+    sIdle2 --> sCalculate: Initialize
+    sCalculate --> sCalculate: cnt != k+7
+    sCalculate --> sWrite: cnt = k+7 (cntEnd)
+    sWrite --> sWrite: writeCnt < N-1
+    sWrite --> sFinish: writeCnt = N-1
+    sFinish --> sIdle: Done
 
-    sIdle2 --> sCalculate: Unconditional<br/><br/>Actions:<br/>• cnt ← 1<br/>• sysReset ← 0
+    sIdle: IDLE
+    sIdle: Wait for start signal
 
-    sCalculate --> sCalculate: cnt ≠ k+7<br/><br/>Control signals:<br/>• stopRead = (cnt>k ∨ cnt=0)<br/>• startFifo = (cnt=2)<br/>• stopFifo = (cnt=k+3)<br/>• cntEnd = (cnt=k+7)<br/><br/>Actions:<br/>• cnt ← cnt + 1<br/>• Read from buffers A & B<br/>• Staggered rdEnA/rdEnB
+    sIdle2: IDLE2
+    sIdle2: One-cycle initialization
+    sIdle2: cnt ← 0, addrA/B/C ← 0
 
-    sCalculate --> sWrite: cnt = k+7<br/>(cntEnd asserted)<br/><br/>Actions:<br/>• Prepare to write results
+    sCalculate: CALCULATE
+    sCalculate: Read matrices, feed systolic array
+    sCalculate: cnt ← cnt + 1
+    sCalculate: stopRead = (cnt>k OR cnt=0)
+    sCalculate: startFifo at cnt=2
+    sCalculate: stopFifo at cnt=k+3
+    sCalculate: Staggered rdEnA/rdEnB enables
 
-    sWrite --> sWrite: writeCnt < N-1<br/><br/>Actions:<br/>• Write matOut row to buffer C<br/>• Pack 4×16-bit → 64-bit word<br/>• writeCnt ← writeCnt + 1<br/>• addrC ← addrC + 1
+    sWrite: WRITE
+    sWrite: Write matOut to buffer C
+    sWrite: Pack 4×16-bit → 64-bit word
+    sWrite: writeCnt ← writeCnt + 1
+    sWrite: addrC ← addrC + 1
 
-    sWrite --> sFinish: writeCnt = N-1<br/><br/>Actions:<br/>• writeCnt ← 0<br/>• sysReset ← 1<br/>(clear accumulators)
-
-    sFinish --> sIdle: Unconditional<br/><br/>Actions:<br/>• Assert done signal
-
-    note right of sCalculate
-        Timing details (for k×k multiply):
-        • stopRead prevents buffer overread
-        • startFifo begins FIFO reads at cnt=2
-        • stopFifo ends FIFO reads at cnt=k+3
-        • Total cycles = k+7 in CALCULATE state
-    end note
-
-    note right of sWrite
-        Writes N rows to buffer C:
-        • Each row = 4 elements
-        • Each element truncated to 16-bit
-        • Packed as: Cat(elem[3], elem[2], elem[1], elem[0])
-        • Total = N × 64-bit words
-    end note
+    sFinish: FINISH
+    sFinish: Assert done signal
+    sFinish: sysReset ← 1
 ```
 
 ## TPU Interface
