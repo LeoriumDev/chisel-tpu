@@ -22,15 +22,42 @@ import tpu.{GlobalBufferIO, TPUConfig}
   * - stop_fifo = (cnt == k + 3)
   * - cntEnd = (cnt == k + 7)
   *
+  * =============================================================================
+  * CRITICAL: PARAMETER SEMANTICS
+  * =============================================================================
+  *
+  * io.k: Number of 32-bit WORDS to read from GlobalBuffers A and B
+  *   - NOT the number of tiles in k dimension
+  *   - Each word contains N packed 8-bit values (one per FIFO)
+  *   - For N×N systolic array to compute one tile: k = N
+  *
+  *   Examples:
+  *   - 4×4 tile: k=4 reads 4 words → 4 elements per FIFO
+  *   - 2×2 matrix (padded to 4×4): Still k=4 (hardware is 4×4)
+  *   - 4×8 @ 8×4 (2 k-tiles): Would need k=8
+  *
+  * io.m, io.n: Number of tiles in M and N dimensions (for multi-tile)
+  *   - Single tile: m=1, n=1
+  *   - Multi-tile requires FSM enhancement (not yet implemented)
+  *
+  * Data Flow:
+  *   - Each word from buffer A feeds all N row FIFOs with one element
+  *   - Each word from buffer B feeds all N column FIFOs with one element
+  *   - For k words: each FIFO accumulates k elements for inner product
+  *
+  * Reference: reference/tpu_project/src/tpu.v line 39
+  *   wire stop_read = (cnt > {1'd0, k} || cnt == 5'd0);
+  * =============================================================================
+  *
   * @param config TPU configuration
   */
 class TPUControl(config: TPUConfig) extends Module {
   val io = IO(new Bundle {
     // Control interface
     val start = Input(Bool())
-    val m     = Input(UInt(4.W))
-    val k     = Input(UInt(4.W))
-    val n     = Input(UInt(4.W))
+    val m     = Input(UInt(10.W))
+    val k     = Input(UInt(10.W))
+    val n     = Input(UInt(10.W))
     val done  = Output(Bool())
 
     // Systolic array control
@@ -55,12 +82,15 @@ class TPUControl(config: TPUConfig) extends Module {
   import State._
 
   val state = RegInit(sIdle)
-  val cnt   = RegInit(0.U(5.W))
+  val cnt   = RegInit(0.U(12.W))  // Widened to support k up to 1023 (k+7 needs ~11 bits)
 
   // Address registers
   val addrA = RegInit(0.U(config.bufferAddrWidth.W))
   val addrB = RegInit(0.U(config.bufferAddrWidth.W))
   val addrC = RegInit(0.U(config.bufferAddrWidth.W))
+
+  // Write counter for buffer C (writes N rows, each row is one 64-bit word)
+  val writeCnt = RegInit(0.U(log2Ceil(config.n + 1).W))
 
   // Control signals
   val stopRead  = cnt > io.k || cnt === 0.U
@@ -118,19 +148,26 @@ class TPUControl(config: TPUConfig) extends Module {
       }
 
       when(cntEnd) {
-        state       := sWrite
-        sysResetReg := true.B
+        state := sWrite
+        // Do NOT reset sysResetReg here - we need to read matOut first!
       }
     }
 
     is(sWrite) {
       // Write results to buffer C
-      // Simplified: write first result and transition to finish
-      state := sFinish
+      // Write one row per cycle (each row = 4 x 16-bit values = 64 bits)
+      writeCnt := writeCnt + 1.U
+      addrC    := addrC + 1.U
+
+      when(writeCnt === (config.n - 1).U) {
+        state       := sFinish
+        writeCnt    := 0.U
+        sysResetReg := true.B  // Reset accumulators AFTER writing results
+      }
     }
 
     is(sFinish) {
-      // Hold done signal
+      // Hold done signal, then return to idle
       state := sIdle
     }
   }
@@ -158,8 +195,19 @@ class TPUControl(config: TPUConfig) extends Module {
   io.bufB.addr   := addrB
   io.bufB.wrData := 0.U
 
-  // Buffer C connections
-  io.bufC.wrEn   := false.B
-  io.bufC.addr   := addrC
-  io.bufC.wrData := 0.U
+  // Buffer C connections - pack matOut row into 64-bit word
+  // Each row of matOut has N values, each 21-bit accumulator truncated to 16-bit
+  io.bufC.wrEn := state === sWrite
+  io.bufC.addr := addrC
+
+  // Pack current row of matOut into 64-bit word (4 x 16-bit values)
+  // writeCnt selects which row to write
+  val packedRow = Wire(UInt(config.extendedWordWidth.W))
+  packedRow := Cat(
+    io.matOut(writeCnt)(3)(15, 0),  // Bits 63:48 - element [row][3]
+    io.matOut(writeCnt)(2)(15, 0),  // Bits 47:32 - element [row][2]
+    io.matOut(writeCnt)(1)(15, 0),  // Bits 31:16 - element [row][1]
+    io.matOut(writeCnt)(0)(15, 0)   // Bits 15:0  - element [row][0]
+  )
+  io.bufC.wrData := packedRow
 }

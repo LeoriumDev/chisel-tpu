@@ -1,0 +1,300 @@
+// Verilated -*- C++ -*-
+// DESCRIPTION: Verilator output: Design internal header
+// See VTPUTestHarnessGen.h for the primary calling header
+
+#ifndef VERILATED_VTPUTESTHARNESSGEN___024ROOT_H_
+#define VERILATED_VTPUTESTHARNESSGEN___024ROOT_H_  // guard
+
+#include "verilated.h"
+
+
+class VTPUTestHarnessGen__Syms;
+
+class alignas(VL_CACHE_LINE_BYTES) VTPUTestHarnessGen___024root final : public VerilatedModule {
+  public:
+
+    // DESIGN SPECIFIC STATE
+    // Anonymous structures to workaround compiler member-count bugs
+    struct {
+        VL_IN8(clock,0,0);
+        VL_IN8(reset,0,0);
+        VL_IN8(io_start,0,0);
+        VL_OUT8(io_done,0,0);
+        VL_IN8(io_testMode,0,0);
+        VL_IN8(io_bufA_wrEn,0,0);
+        VL_IN8(io_bufA_addr,7,0);
+        VL_IN8(io_bufB_wrEn,0,0);
+        VL_IN8(io_bufB_addr,7,0);
+        VL_IN8(io_bufC_wrEn,0,0);
+        VL_IN8(io_bufC_addr,7,0);
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray_io_stopRead;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__bufferA__DOT__buffer_rdDataReg_MPORT_addr;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__bufferA__DOT__buffer_MPORT_en;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__bufferB__DOT__buffer_rdDataReg_MPORT_addr;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__bufferB__DOT__buffer_MPORT_en;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__bufferC__DOT__buffer_rdDataReg_MPORT_addr;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__bufferC__DOT__buffer_MPORT_en;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_io_empty;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_io_full;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_1_io_empty;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_1_io_full;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_2_io_empty;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_2_io_full;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_3_io_empty;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_3_io_full;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_4_io_empty;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_4_io_full;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_5_io_empty;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_5_io_full;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_6_io_empty;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_6_io_full;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_7_io_empty;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_7_io_full;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_0_io_interconnect_upIn;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_0_io_interconnect_leftIn;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_1_io_interconnect_upIn;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_2_io_interconnect_upIn;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_3_io_interconnect_upIn;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_1_0_io_interconnect_leftIn;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_2_0_io_interconnect_leftIn;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_3_0_io_interconnect_leftIn;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO__DOT__buffer_MPORT_en;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO__DOT__wrPtr;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO__DOT__rdPtr;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO__DOT__count;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO__DOT__dataOutReg;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO__DOT___wrPtr_T_2;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO__DOT___rdPtr_T_2;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO__DOT___count_T_1;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO__DOT___count_T_3;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_1__DOT__buffer_MPORT_en;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_1__DOT__wrPtr;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_1__DOT__rdPtr;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_1__DOT__count;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_1__DOT__dataOutReg;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_1__DOT___wrPtr_T_2;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_1__DOT___rdPtr_T_2;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_1__DOT___count_T_1;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_1__DOT___count_T_3;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_2__DOT__buffer_MPORT_en;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_2__DOT__wrPtr;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_2__DOT__rdPtr;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_2__DOT__count;
+    };
+    struct {
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_2__DOT__dataOutReg;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_2__DOT___wrPtr_T_2;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_2__DOT___rdPtr_T_2;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_2__DOT___count_T_1;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_2__DOT___count_T_3;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_3__DOT__buffer_MPORT_en;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_3__DOT__wrPtr;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_3__DOT__rdPtr;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_3__DOT__count;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_3__DOT__dataOutReg;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_3__DOT___wrPtr_T_2;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_3__DOT___rdPtr_T_2;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_3__DOT___count_T_1;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_3__DOT___count_T_3;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_4__DOT__buffer_MPORT_en;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_4__DOT__wrPtr;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_4__DOT__rdPtr;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_4__DOT__count;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_4__DOT__dataOutReg;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_4__DOT___wrPtr_T_2;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_4__DOT___rdPtr_T_2;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_4__DOT___count_T_1;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_4__DOT___count_T_3;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_5__DOT__buffer_MPORT_en;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_5__DOT__wrPtr;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_5__DOT__rdPtr;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_5__DOT__count;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_5__DOT__dataOutReg;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_5__DOT___wrPtr_T_2;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_5__DOT___rdPtr_T_2;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_5__DOT___count_T_1;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_5__DOT___count_T_3;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_6__DOT__buffer_MPORT_en;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_6__DOT__wrPtr;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_6__DOT__rdPtr;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_6__DOT__count;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_6__DOT__dataOutReg;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_6__DOT___wrPtr_T_2;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_6__DOT___rdPtr_T_2;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_6__DOT___count_T_1;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_6__DOT___count_T_3;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_7__DOT__buffer_MPORT_en;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_7__DOT__wrPtr;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_7__DOT__rdPtr;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_7__DOT__count;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_7__DOT__dataOutReg;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_7__DOT___wrPtr_T_2;
+        CData/*1:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_7__DOT___rdPtr_T_2;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_7__DOT___count_T_1;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_7__DOT___count_T_3;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_0__DOT__upReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_0__DOT__leftReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_1__DOT__upReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_1__DOT__leftReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_2__DOT__upReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_2__DOT__leftReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_3__DOT__upReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_3__DOT__leftReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_1_0__DOT__upReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_1_0__DOT__leftReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_1_1__DOT__upReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_1_1__DOT__leftReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_1_2__DOT__upReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_1_2__DOT__leftReg;
+    };
+    struct {
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_1_3__DOT__upReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_1_3__DOT__leftReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_2_0__DOT__upReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_2_0__DOT__leftReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_2_1__DOT__upReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_2_1__DOT__leftReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_2_2__DOT__upReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_2_2__DOT__leftReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_2_3__DOT__upReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_2_3__DOT__leftReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_3_0__DOT__upReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_3_0__DOT__leftReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_3_1__DOT__upReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_3_1__DOT__leftReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_3_2__DOT__upReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_3_2__DOT__leftReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_3_3__DOT__upReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_3_3__DOT__leftReg;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__control__DOT__state;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__control__DOT__addrA;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__control__DOT__addrB;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__control__DOT__addrC;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__control__DOT__writeCnt;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__control__DOT__stopFifo;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__control__DOT__cntEnd;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__control__DOT__rdEnAReg_0;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__control__DOT__rdEnAReg_1;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__control__DOT__rdEnAReg_2;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__control__DOT__rdEnAReg_3;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__control__DOT__rdEnBReg_0;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__control__DOT__rdEnBReg_1;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__control__DOT__rdEnBReg_2;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__control__DOT__rdEnBReg_3;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__control__DOT__sysResetReg;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__control__DOT___GEN_9;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__control__DOT___GEN_10;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__control__DOT___GEN_11;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__control__DOT___GEN_16;
+        CData/*7:0*/ TPUTestHarnessGen__DOT__control__DOT___GEN_17;
+        CData/*2:0*/ TPUTestHarnessGen__DOT__control__DOT___GEN_18;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__control__DOT___GEN_21;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__control__DOT___GEN_22;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__control__DOT___GEN_23;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__control__DOT___GEN_24;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__control__DOT___GEN_25;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__control__DOT___GEN_26;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__control__DOT___GEN_27;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__control__DOT___GEN_28;
+        CData/*0:0*/ TPUTestHarnessGen__DOT__control__DOT___GEN_55;
+        CData/*0:0*/ __VstlFirstIteration;
+        CData/*0:0*/ __VicoFirstIteration;
+        CData/*0:0*/ __Vtrigprevexpr___TOP__clock__0;
+        CData/*0:0*/ __VactContinue;
+        VL_IN16(io_m,15,0);
+        VL_IN16(io_k,15,0);
+        VL_IN16(io_n,15,0);
+        SData/*15:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_0__DOT__product;
+        SData/*15:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_1__DOT__product;
+        SData/*15:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_2__DOT__product;
+        SData/*15:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_3__DOT__product;
+        SData/*15:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_1_0__DOT__product;
+        SData/*15:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_1_1__DOT__product;
+        SData/*15:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_1_2__DOT__product;
+        SData/*15:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_1_3__DOT__product;
+    };
+    struct {
+        SData/*15:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_2_0__DOT__product;
+        SData/*15:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_2_1__DOT__product;
+        SData/*15:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_2_2__DOT__product;
+        SData/*15:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_2_3__DOT__product;
+        SData/*15:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_3_0__DOT__product;
+        SData/*15:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_3_1__DOT__product;
+        SData/*15:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_3_2__DOT__product;
+        SData/*15:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_3_3__DOT__product;
+        SData/*11:0*/ TPUTestHarnessGen__DOT__control__DOT__cnt;
+        SData/*11:0*/ TPUTestHarnessGen__DOT__control__DOT___cnt_T_2;
+        VL_IN(io_bufA_wrData,31,0);
+        VL_OUT(io_bufA_rdData,31,0);
+        VL_IN(io_bufB_wrData,31,0);
+        VL_OUT(io_bufB_rdData,31,0);
+        IData/*31:0*/ TPUTestHarnessGen__DOT__bufferA__DOT__rdDataReg;
+        IData/*31:0*/ TPUTestHarnessGen__DOT__bufferB__DOT__rdDataReg;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_0__DOT__accReg;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_0__DOT___accReg_T_2;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_1__DOT__accReg;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_1__DOT___accReg_T_2;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_2__DOT__accReg;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_2__DOT___accReg_T_2;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_3__DOT__accReg;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_0_3__DOT___accReg_T_2;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_1_0__DOT__accReg;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_1_0__DOT___accReg_T_2;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_1_1__DOT__accReg;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_1_1__DOT___accReg_T_2;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_1_2__DOT__accReg;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_1_2__DOT___accReg_T_2;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_1_3__DOT__accReg;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_1_3__DOT___accReg_T_2;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_2_0__DOT__accReg;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_2_0__DOT___accReg_T_2;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_2_1__DOT__accReg;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_2_1__DOT___accReg_T_2;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_2_2__DOT__accReg;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_2_2__DOT___accReg_T_2;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_2_3__DOT__accReg;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_2_3__DOT___accReg_T_2;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_3_0__DOT__accReg;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_3_0__DOT___accReg_T_2;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_3_1__DOT__accReg;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_3_1__DOT___accReg_T_2;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_3_2__DOT__accReg;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_3_2__DOT___accReg_T_2;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_3_3__DOT__accReg;
+        IData/*20:0*/ TPUTestHarnessGen__DOT__systolicArray__DOT__macGrid_3_3__DOT___accReg_T_2;
+        IData/*31:0*/ __VactIterCount;
+        VL_IN64(io_bufC_wrData,63,0);
+        VL_OUT64(io_bufC_rdData,63,0);
+        QData/*63:0*/ TPUTestHarnessGen__DOT__bufferC__DOT__rdDataReg;
+        VlUnpacked<IData/*31:0*/, 256> TPUTestHarnessGen__DOT__bufferA__DOT__buffer;
+        VlUnpacked<IData/*31:0*/, 256> TPUTestHarnessGen__DOT__bufferB__DOT__buffer;
+        VlUnpacked<QData/*63:0*/, 256> TPUTestHarnessGen__DOT__bufferC__DOT__buffer;
+        VlUnpacked<CData/*7:0*/, 4> TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO__DOT__buffer;
+        VlUnpacked<CData/*7:0*/, 4> TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_1__DOT__buffer;
+        VlUnpacked<CData/*7:0*/, 4> TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_2__DOT__buffer;
+        VlUnpacked<CData/*7:0*/, 4> TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_3__DOT__buffer;
+        VlUnpacked<CData/*7:0*/, 4> TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_4__DOT__buffer;
+        VlUnpacked<CData/*7:0*/, 4> TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_5__DOT__buffer;
+        VlUnpacked<CData/*7:0*/, 4> TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_6__DOT__buffer;
+        VlUnpacked<CData/*7:0*/, 4> TPUTestHarnessGen__DOT__systolicArray__DOT__SyncFIFO_7__DOT__buffer;
+        VlUnpacked<CData/*0:0*/, 3> __Vm_traceActivity;
+    };
+    VlTriggerVec<1> __VstlTriggered;
+    VlTriggerVec<1> __VicoTriggered;
+    VlTriggerVec<1> __VactTriggered;
+    VlTriggerVec<1> __VnbaTriggered;
+
+    // INTERNAL VARIABLES
+    VTPUTestHarnessGen__Syms* const vlSymsp;
+
+    // CONSTRUCTORS
+    VTPUTestHarnessGen___024root(VTPUTestHarnessGen__Syms* symsp, const char* v__name);
+    ~VTPUTestHarnessGen___024root();
+    VL_UNCOPYABLE(VTPUTestHarnessGen___024root);
+
+    // INTERNAL METHODS
+    void __Vconfigure(bool first);
+};
+
+
+#endif  // guard

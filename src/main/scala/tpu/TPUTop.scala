@@ -24,9 +24,9 @@ import tpu.core._
 class TPUTop(config: TPUConfig = TPUConfig()) extends Module {
   val io = IO(new Bundle {
     val start = Input(Bool())
-    val m     = Input(UInt(4.W))
-    val k     = Input(UInt(4.W))
-    val n     = Input(UInt(4.W))
+    val m     = Input(UInt(16.W))
+    val k     = Input(UInt(16.W))
+    val n     = Input(UInt(16.W))
     val done  = Output(Bool())
   })
 
