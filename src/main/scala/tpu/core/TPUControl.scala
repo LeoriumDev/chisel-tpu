@@ -122,8 +122,9 @@ class TPUControl(config: TPUConfig) extends Module {
   val startFifo = cnt === 2.U  // rdEnAReg becomes true at cnt=3 (registered)
   val stopFifo  = cnt === (io.k + 2.U)  // rdEnDelayed becomes false at cnt=k+3
   // cntEnd must be late enough for all MACs to finish accumulating.
-  // Testing with very large margin to debug timing issues.
-  val cntEnd    = cnt === (io.k + 20.U)  // Large margin for testing
+  // The systolic array diagonal propagation delay is 2*(n-1) cycles.
+  // Formula: k + 2n - 1 accounts for k values plus diagonal traversal.
+  val cntEnd    = cnt === (io.k + (2 * config.n - 1).U)
 
   // Staggered FIFO read enables
   val rdEnAReg = RegInit(VecInit(Seq.fill(config.n)(false.B)))
