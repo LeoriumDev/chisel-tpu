@@ -24,20 +24,23 @@ class SingleLayerTest extends AnyFlatSpec with ChiselScalatestTester {
 
       // Test case: A = [[1, 2], [3, 4]], B = [[5, 1], [1, 6]]
       // Expected C = [[7, 13], [19, 27]]
-      // IMPORTANT: Matrices must be stored COLUMN-MAJOR for systolic array!
-      // A stored column-major (transpose layout) for correct FIFO feeding
+      // NOTE: Systolic array data flow requires specific packing:
+      // - Each 32-bit word distributes 4 values to 4 FIFOs
+      // - FIFO A[i] should receive row i of A
+      // - FIFO B[j] should receive column j of B
+      // For 2x2 matrices padded to 4x4, pack rows of A^T and rows of B^T
       val matrixA = Array(
-        1, 3, 0, 0,  // Col 0: [A[0,0], A[1,0], pad, pad] = [1, 3, 0, 0]
-        2, 4, 0, 0,  // Col 1: [A[0,1], A[1,1], pad, pad] = [2, 4, 0, 0]
-        0, 0, 0, 0,  // Col 2: all padding
-        0, 0, 0, 0   // Col 3: all padding
+        1, 3, 0, 0,  // A^T row 0: [A[0,0], A[1,0], pad, pad] -> FIFO A gets [1,2], [3,4]
+        2, 4, 0, 0,  // A^T row 1: [A[0,1], A[1,1], pad, pad]
+        0, 0, 0, 0,  // padding
+        0, 0, 0, 0   // padding
       )
 
       val matrixB = Array(
-        5, 1, 0, 0,  // Col 0: [5, 1, pad, pad]
-        1, 6, 0, 0,  // Col 1: [1, 6, pad, pad]
-        0, 0, 0, 0,  // Col 2: [pad, pad, pad, pad]
-        0, 0, 0, 0   // Col 3: [pad, pad, pad, pad]
+        5, 1, 0, 0,  // B^T row 0: [B[0,0], B[1,0], pad, pad] -> FIFO B gets columns of B
+        1, 6, 0, 0,  // B^T row 1: [B[0,1], B[1,1], pad, pad]
+        0, 0, 0, 0,  // padding
+        0, 0, 0, 0   // padding
       )
 
       println("\nLoading matrices into GlobalBuffers...")

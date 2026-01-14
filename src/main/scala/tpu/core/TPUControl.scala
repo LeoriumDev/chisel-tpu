@@ -73,6 +73,18 @@ class TPUControl(config: TPUConfig) extends Module {
 
     // Matrix output from systolic array
     val matOut = Input(Vec(config.n, Vec(config.n, SInt(config.accWidth.W))))
+
+    // Debug outputs
+    val debug_state     = Output(UInt(3.W))
+    val debug_cnt       = Output(UInt(12.W))
+    val debug_stopRead  = Output(Bool())
+    val debug_startFifo = Output(Bool())
+    val debug_stopFifo  = Output(Bool())
+    val debug_cntEnd    = Output(Bool())
+    val debug_addrA     = Output(UInt(config.bufferAddrWidth.W))
+    val debug_addrB     = Output(UInt(config.bufferAddrWidth.W))
+    val debug_addrC     = Output(UInt(config.bufferAddrWidth.W))
+    val debug_writeCnt  = Output(UInt(log2Ceil(config.n + 1).W))
   })
 
   // FSM states
@@ -93,10 +105,26 @@ class TPUControl(config: TPUConfig) extends Module {
   val writeCnt = RegInit(0.U(log2Ceil(config.n + 1).W))
 
   // Control signals
-  val stopRead  = cnt > io.k || cnt === 0.U
-  val startFifo = cnt === 2.U
-  val stopFifo  = cnt === (io.k + 3.U)
-  val cntEnd    = cnt === (io.k + 7.U)
+  // IMPORTANT: GlobalBuffer has 1-cycle read latency (registered output).
+  // Data from addr N appears at rdData in cycle N+1.
+  // Therefore, we shift FIFO writes by 1 cycle to align with valid data:
+  // - Original: stopRead false at cnt [1, k] -> data arrives at [2, k+1]
+  // - Fixed: stopRead false at cnt [2, k+1] -> aligned with data arrival
+  //
+  // Timing for k=4:
+  // - FIFO writes at cnt=2,3,4,5 (k cycles) with data[0,1,2,3]
+  // - startFifo at cnt=2 -> rdEnAReg(0) becomes true at cnt=3 (registered)
+  // - SystolicArray uses delayed rdEn for gating (rdEnDelayed true at cnt=4)
+  // - FIFO outputs valid data at cnt=4,5,6,7 (k cycles)
+  // - stopFifo at k+2 -> rdEnAReg false at k+3 -> rdEnDelayed false at k+4
+  // - Gated outputs valid at cnt=4,...,k+3 (k cycles)
+  val stopRead  = cnt > io.k + 1.U || cnt <= 1.U
+  val startFifo = cnt === 2.U  // rdEnAReg becomes true at cnt=3 (registered)
+  val stopFifo  = cnt === (io.k + 2.U)  // rdEnDelayed becomes false at cnt=k+3
+  // cntEnd must be late enough for all MACs to finish accumulating.
+  // The systolic array diagonal propagation delay is 2*(n-1) cycles.
+  // Formula: k + 2n - 1 accounts for k values plus diagonal traversal.
+  val cntEnd    = cnt === (io.k + (2 * config.n - 1).U)
 
   // Staggered FIFO read enables
   val rdEnAReg = RegInit(VecInit(Seq.fill(config.n)(false.B)))
@@ -210,4 +238,16 @@ class TPUControl(config: TPUConfig) extends Module {
     io.matOut(writeCnt)(0)(15, 0)   // Bits 15:0  - element [row][0]
   )
   io.bufC.wrData := packedRow
+
+  // Debug outputs
+  io.debug_state     := state.asUInt
+  io.debug_cnt       := cnt
+  io.debug_stopRead  := stopRead
+  io.debug_startFifo := startFifo
+  io.debug_stopFifo  := stopFifo
+  io.debug_cntEnd    := cntEnd
+  io.debug_addrA     := addrA
+  io.debug_addrB     := addrB
+  io.debug_addrC     := addrC
+  io.debug_writeCnt  := writeCnt
 }

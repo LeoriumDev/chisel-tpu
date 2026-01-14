@@ -29,7 +29,19 @@ import tpu.{SyncFIFOIO, TPUConfig}
   * @param config TPU configuration parameters
   */
 class SyncFIFO(config: TPUConfig) extends Module {
-  val io = IO(new SyncFIFOIO(config.dataWidth))
+  val io = IO(new Bundle {
+    // Normal FIFO interface
+    val wrEn    = Input(Bool())
+    val rdEn    = Input(Bool())
+    val dataIn  = Input(SInt(config.dataWidth.W))
+    val dataOut = Output(SInt(config.dataWidth.W))
+    val empty   = Output(Bool())
+    val full    = Output(Bool())
+    // Debug outputs
+    val debug_wrPtr = Output(UInt(log2Ceil(config.fifoDepth).W))
+    val debug_rdPtr = Output(UInt(log2Ceil(config.fifoDepth).W))
+    val debug_count = Output(UInt(config.fifoAddrWidth.W))
+  })
 
   // FIFO storage
   val buffer = Mem(config.fifoDepth, SInt(config.dataWidth.W))
@@ -67,4 +79,9 @@ class SyncFIFO(config: TPUConfig) extends Module {
   io.empty := (wrPtr === rdPtr) && (count === 0.U)
   io.full  := (wrPtr + 1.U === rdPtr) || ((wrPtr === (config.fifoDepth - 1).U) && (rdPtr === 0.U))
   io.dataOut := dataOutReg
+
+  // Debug outputs
+  io.debug_wrPtr := wrPtr
+  io.debug_rdPtr := rdPtr
+  io.debug_count := count
 }

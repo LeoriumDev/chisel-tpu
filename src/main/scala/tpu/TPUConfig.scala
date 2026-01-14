@@ -19,7 +19,7 @@ case class TPUConfig(
   n:                  Int = 4,
   dataWidth:          Int = 8,
   accWidth:           Int = 21,
-  fifoDepth:          Int = 4,
+  fifoDepth:          Int = 8,  // Must be >= k + n to handle staggered FIFO reads
   bufferDepth:        Int = 256,
   wordWidth:          Int = 32,
   extendedWordWidth:  Int = 64

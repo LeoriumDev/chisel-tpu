@@ -6,60 +6,8 @@ A Tensor Processing Unit (TPU) hardware design implemented in Chisel HDL with pa
 
 ### System Architecture Diagram
 
-```
-+-----------------------------------------------------------------------------------+
-| TPUTop Module                                                                     |
-|                                                                                   |
-|  +---------------------------+       +-----------------------------------------+  |
-|  | TPU Control Unit (FSM)    |<----->| Global Buffers                          |  |
-|  |                           |       |                                         |  |
-|  | States: IDLE, IDLE2,      |       | +----------+ +----------+ +-----------+ |  |
-|  |         CALCULATE, WRITE, |       | | Buffer A | | Buffer B | | Buffer C  | |  |
-|  |         FINISH            |       | | (In A)   | | (In B)   | | (Out)     | |  |
-|  |                           |       | | 256x32b  | | 256x32b  | | 256x64b   | |  |
-|  | Counters: cnt, addr,      |       | +----------+ +----------+ +-----------+ |  |
-|  |           writeCnt        |       |      |            |            ^        |  |
-|  +---------------------------+       +------+------------+------------+--------+  |
-|             ^      |                        |            |            |           |
-|             |      | Control                | rdData     | rdData     | wrData    |
-|             |      | Signals                | (A)        | (B)        |           |
-|             v      v                        v            v            |           |
-|  +--------------------------------------------------------------------+--------+  |
-|  | Systolic Array (4x4)                                               |        |  |
-|  |                                                                    |        |  |
-|  |  +------------------+    +------------------+                      |        |  |
-|  |  | Input FIFOs A    |    | Input FIFOs B    |                      |        |  |
-|  |  | (Horizontal)     |    | (Vertical)       |                      |        |  |
-|  |  +--------+---------+    +--------+---------+                      |        |  |
-|  |           |                       |                                |        |  |
-|  |           v                       v                                |        |  |
-|  |  +--------------------------------------------------+              |        |  |
-|  |  | MAC Grid (4x4)                                   |              |        |  |
-|  |  |                                                  |              |        |  |
-|  |  |  [MAC00]->[MAC01]->[MAC02]->[MAC03]              |              |        |  |
-|  |  |    |      |      |      |                        |              |        |  |
-|  |  |    v      v      v      v                        |              |        |  |
-|  |  |  [MAC10]->[MAC11]->[MAC12]->[MAC13]              |              |        |  |
-|  |  |    |      |      |      |                        |              |        |  |
-|  |  |    v      v      v      v                        |              |        |  |
-|  |  |  [MAC20]->[MAC21]->[MAC22]->[MAC23]              |              |        |  |
-|  |  |    |      |      |      |                        |              |        |  |
-|  |  |    v      v      v      v                        |              |        |  |
-|  |  |  [MAC30]->[MAC31]->[MAC32]->[MAC33]              |              |        |  |
-|  |  |                                                  |              |        |  |
-|  |  +------------------------+-------------------------+              |        |  |
-|  |                           |                                        |        |  |
-|  +---------------------------+----------------------------------------+        |  |
-|                              |                                                 |  |
-|                              | Results (16x 21-bit accumulators)               |  |
-|                              v                                                 |  |
-|  (Feedback to Control/Buffers for Writeback) ----------------------------------+  |
-|                                                                                   |
-+-----------------------------------------------------------------------------------+
-      ^
-      | External Interface
-      | (start, m, k, n, done)
-```
+<img width="645" height="1024" alt="image" src="https://github.com/user-attachments/assets/d416240c-c2d8-4b79-a0a2-686edcfae1a3" />
+
 
 ### MAC Unit Architecture
 
@@ -69,96 +17,22 @@ Each MAC (Multiply-Accumulate) unit contains:
 - **Operation**: `accumulator += upIn × leftIn`
 - **Data flow**: Systolic (inputs forwarded to neighboring MACs)
 
-```
-                      +---------+
-      upIn (8-bit) -->| upReg   |--+--> upOut (8-bit)
-                      +---------+  |
-                                   v
-                              +--------+
-                              | Mult   |
-                              | (8x8)  |
-                              +--------+
-                                   |
-                      +---------+  | product (16-bit)
-    leftIn (8-bit) -->| leftReg |  |
-                      +----+----+  v
-                           |  +--------+
-                           |  | Adder  |<---+
-    leftOut (8-bit) <------+  +--------+    |
-                                   |        |
-                                   v        |
-                              +---------+   |
-                              | AccReg  |---+
-                              | (21-bit)|
-                              +---------+
-                                   |
-                                   v
-                             matOut (21-bit)
-```
+<img width="775" height="1024" alt="image" src="https://github.com/user-attachments/assets/38a2bca6-825c-42e9-9638-09dbf09581b4" />
+
 
 ## TPU Control State Machine
 
 The TPUControl FSM orchestrates the entire computation pipeline:
 
-```
-           +-------+
-           | Start |
-           +-------+
-               |
-               v
-      +-----------------+
-      | IDLE            | <-----------------------+
-      | Wait for start  |                         |
-      +--------+--------+                         |
-               | start asserted                   |
-               v                                  |
-      +-----------------+                         |
-      | IDLE2           |                         |
-      | Init counters   |                         |
-      +--------+--------+                         |
-               |                                  |
-               v                                  |
-      +-----------------+    cnt != k+7           |
- +--> | CALCULATE       | ------------------+     |
- |    | Feed Systolic   |                   |     |
- |    | Array           | <-----------------+     |
- |    +--------+--------+                         |
- |             | cnt == k+7                       |
- |             v                                  |
- |    +-----------------+    writeCnt < N-1       |
- |    | WRITE           | ------------------+     |
- |    | Flush to Buf C  |                   |     |
- |    +--------+--------+ <-----------------+     |
- |             | writeCnt == N-1                  |
- |             v                                  |
- |    +-----------------+                         |
- |    | FINISH          |                         |
- |    | Assert done     |                         |
- |    +--------+--------+                         |
- |             |                                  |
- +-------------+----------------------------------+
-```
+<img width="645" height="1024" alt="image" src="https://github.com/user-attachments/assets/6f2b676a-366d-4f54-a9df-b448fd276300" />
+
 
 ## TPU Interface
 
 ### Top-Level Interface (TPUTop)
 
-```
-       External Signals                     TPUTop Module
-  +------------------------+          +-----------------------+
-  |                        |          |                       |
-  |  start (1-bit) --------+--------->|  TPU Control          |
-  |                        |          |                       |
-  |  m (4-bit) ------------+--------->|                       |
-  |                        |          |                       |
-  |  k (4-bit) ------------+--------->|                       |
-  |                        |          |                       |
-  |  n (4-bit) ------------+--------->|                       |
-  |                        |          |                       |
-  |           done (1-bit) |<---------+                       |
-  |                        |          |                       |
-  +------------------------+          +-----------------------+
-```
+<img width="1024" height="624" alt="image" src="https://github.com/user-attachments/assets/aa355705-80ef-4824-a36a-1e6fc01706b5" />
+
 
 ### Internal Interfaces
 
