@@ -86,6 +86,7 @@ class MNISTDebugTest extends AnyFlatSpec with ChiselScalatestTester {
       // Test: A = Identity, B = [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]]
       // Expected C = B (since I @ B = B)
       // This tests that the systolic array accumulates correctly
+      // NOTE: Both matrices must be in ROW-MAJOR format for correct systolic array operation
       val matrixA = Array(
         1, 0, 0, 0,  // Row 0
         0, 1, 0, 0,  // Row 1
@@ -93,10 +94,10 @@ class MNISTDebugTest extends AnyFlatSpec with ChiselScalatestTester {
         0, 0, 0, 1   // Row 3
       )
       val matrixB = Array(
-        1, 5, 9, 13,   // Col 0
-        2, 6, 10, 14,  // Col 1
-        3, 7, 11, 15,  // Col 2
-        4, 8, 12, 16   // Col 3
+        1, 2, 3, 4,     // Row 0
+        5, 6, 7, 8,     // Row 1
+        9, 10, 11, 12,  // Row 2
+        13, 14, 15, 16  // Row 3
       )
 
       println(s"Loading A (identity) and B matrices...")

@@ -36,6 +36,10 @@ class MACUnit(config: TPUConfig) extends Module {
     val interconnect = new MACInterconnect(config.dataWidth)
     val matOut       = Output(SInt(config.accWidth.W))
     val sysReset     = Input(Bool())
+    // Debug outputs
+    val debug_accReg  = Output(SInt(config.accWidth.W))
+    val debug_upReg   = Output(SInt(config.dataWidth.W))
+    val debug_leftReg = Output(SInt(config.dataWidth.W))
   })
 
   // Registers for systolic data flow
@@ -64,4 +68,9 @@ class MACUnit(config: TPUConfig) extends Module {
   io.interconnect.upOut   := upReg
   io.interconnect.leftOut := leftReg
   io.matOut               := accReg
+
+  // Debug outputs
+  io.debug_accReg  := accReg
+  io.debug_upReg   := upReg
+  io.debug_leftReg := leftReg
 }

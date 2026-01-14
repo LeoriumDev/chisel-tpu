@@ -31,6 +31,35 @@ class SystolicArray(config: TPUConfig) extends Module {
     val rdEnB       = Input(Vec(config.n, Bool()))
     val sysReset    = Input(Bool())
     val matOut      = Output(Vec(config.n, Vec(config.n, SInt(config.accWidth.W))))
+
+    // Debug outputs - FIFO A state
+    val debug_fifosA_wrPtr   = Output(Vec(config.n, UInt(log2Ceil(config.fifoDepth).W)))
+    val debug_fifosA_rdPtr   = Output(Vec(config.n, UInt(log2Ceil(config.fifoDepth).W)))
+    val debug_fifosA_count   = Output(Vec(config.n, UInt(config.fifoAddrWidth.W)))
+    val debug_fifosA_dataOut = Output(Vec(config.n, SInt(config.dataWidth.W)))
+    val debug_fifosA_empty   = Output(Vec(config.n, Bool()))
+    val debug_fifosA_full    = Output(Vec(config.n, Bool()))
+
+    // Debug outputs - FIFO B state
+    val debug_fifosB_wrPtr   = Output(Vec(config.n, UInt(log2Ceil(config.fifoDepth).W)))
+    val debug_fifosB_rdPtr   = Output(Vec(config.n, UInt(log2Ceil(config.fifoDepth).W)))
+    val debug_fifosB_count   = Output(Vec(config.n, UInt(config.fifoAddrWidth.W)))
+    val debug_fifosB_dataOut = Output(Vec(config.n, SInt(config.dataWidth.W)))
+    val debug_fifosB_empty   = Output(Vec(config.n, Bool()))
+    val debug_fifosB_full    = Output(Vec(config.n, Bool()))
+
+    // Debug outputs - MAC grid state
+    val debug_macAccReg  = Output(Vec(config.n, Vec(config.n, SInt(config.accWidth.W))))
+    val debug_macUpReg   = Output(Vec(config.n, Vec(config.n, SInt(config.dataWidth.W))))
+    val debug_macLeftReg = Output(Vec(config.n, Vec(config.n, SInt(config.dataWidth.W))))
+
+    // Debug outputs - Systolic interconnect wires
+    val debug_topNet  = Output(Vec(config.n + 1, Vec(config.n, SInt(config.dataWidth.W))))
+    val debug_leftNet = Output(Vec(config.n + 1, Vec(config.n, SInt(config.dataWidth.W))))
+
+    // Debug outputs - Delayed read enables
+    val debug_rdEnADelayed = Output(Vec(config.n, Bool()))
+    val debug_rdEnBDelayed = Output(Vec(config.n, Bool()))
   })
 
   // Instantiate FIFOs for matrix A (one per row)
@@ -70,14 +99,20 @@ class SystolicArray(config: TPUConfig) extends Module {
   val topNet  = Wire(Vec(config.n + 1, Vec(config.n, SInt(config.dataWidth.W))))
   val leftNet = Wire(Vec(config.n + 1, Vec(config.n, SInt(config.dataWidth.W))))
 
-  // Top row inputs from FIFO B
+  // Delayed read enables for output gating
+  // FIFO output is registered (1-cycle delay from rdEn), so we delay the gating signal
+  // to match. This ensures the gate stays open when valid data appears at FIFO output.
+  val rdEnADelayed = RegNext(io.rdEnA, VecInit(Seq.fill(config.n)(false.B)))
+  val rdEnBDelayed = RegNext(io.rdEnB, VecInit(Seq.fill(config.n)(false.B)))
+
+  // Top row inputs from FIFO B (gated by delayed rdEnB to match FIFO output timing)
   for (j <- 0 until config.n) {
-    topNet(0)(j) := Mux(io.rdEnB(j), fifosB(j).dataOut, 0.S)
+    topNet(0)(j) := Mux(rdEnBDelayed(j), fifosB(j).dataOut, 0.S)
   }
 
-  // Left column inputs from FIFO A
+  // Left column inputs from FIFO A (gated by delayed rdEnA to match FIFO output timing)
   for (i <- 0 until config.n) {
-    leftNet(0)(i) := Mux(io.rdEnA(i), fifosA(i).dataOut, 0.S)
+    leftNet(0)(i) := Mux(rdEnADelayed(i), fifosA(i).dataOut, 0.S)
   }
 
   // Connect MAC grid with systolic interconnect
@@ -98,4 +133,41 @@ class SystolicArray(config: TPUConfig) extends Module {
       macGrid(i)(j).io.matOut
     })
   })
+
+  // Debug outputs - FIFO A
+  for (i <- 0 until config.n) {
+    io.debug_fifosA_wrPtr(i)   := fifosA(i).debug_wrPtr
+    io.debug_fifosA_rdPtr(i)   := fifosA(i).debug_rdPtr
+    io.debug_fifosA_count(i)   := fifosA(i).debug_count
+    io.debug_fifosA_dataOut(i) := fifosA(i).dataOut
+    io.debug_fifosA_empty(i)   := fifosA(i).empty
+    io.debug_fifosA_full(i)    := fifosA(i).full
+  }
+
+  // Debug outputs - FIFO B
+  for (i <- 0 until config.n) {
+    io.debug_fifosB_wrPtr(i)   := fifosB(i).debug_wrPtr
+    io.debug_fifosB_rdPtr(i)   := fifosB(i).debug_rdPtr
+    io.debug_fifosB_count(i)   := fifosB(i).debug_count
+    io.debug_fifosB_dataOut(i) := fifosB(i).dataOut
+    io.debug_fifosB_empty(i)   := fifosB(i).empty
+    io.debug_fifosB_full(i)    := fifosB(i).full
+  }
+
+  // Debug outputs - MAC grid
+  for (i <- 0 until config.n) {
+    for (j <- 0 until config.n) {
+      io.debug_macAccReg(i)(j)  := macGrid(i)(j).io.debug_accReg
+      io.debug_macUpReg(i)(j)   := macGrid(i)(j).io.debug_upReg
+      io.debug_macLeftReg(i)(j) := macGrid(i)(j).io.debug_leftReg
+    }
+  }
+
+  // Debug outputs - Systolic interconnect
+  io.debug_topNet  := topNet
+  io.debug_leftNet := leftNet
+
+  // Debug outputs - Delayed read enables
+  io.debug_rdEnADelayed := rdEnADelayed
+  io.debug_rdEnBDelayed := rdEnBDelayed
 }
