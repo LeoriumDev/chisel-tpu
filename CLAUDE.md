@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 chisel-tpu - A TPU (Tensor Processing Unit) hardware design project using Chisel HDL.
+Simulating running MNIST model on TPU hardware.
 
 ## Tech Stack
 
