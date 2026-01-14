@@ -6,108 +6,59 @@ A Tensor Processing Unit (TPU) hardware design implemented in Chisel HDL with pa
 
 ### System Architecture Diagram
 
-```mermaid
-graph TB
-    subgraph TPUTop["TPUTop Module"]
-        subgraph Control["TPU Control Unit (FSM)"]
-            FSM["State Machine<br/>5 states: IDLE, IDLE2,<br/>CALCULATE, WRITE, FINISH<br/><br/>Counters:<br/>• cnt: 12-bit<br/>• addrA/B/C: 8-bit<br/>• writeCnt: 3-bit"]
-        end
-
-        subgraph Buffers["Global Buffers"]
-            BufA["Buffer A<br/>256 × 32-bit<br/>(Input Matrix A)<br/><br/>4 × 8-bit elements<br/>per word"]
-            BufB["Buffer B<br/>256 × 32-bit<br/>(Input Matrix B)<br/><br/>4 × 8-bit elements<br/>per word"]
-            BufC["Buffer C<br/>256 × 64-bit<br/>(Output Matrix)<br/><br/>4 × 16-bit results<br/>per word"]
-        end
-
-        subgraph SysArray["Systolic Array (4×4)"]
-            subgraph FIFOs["Input FIFOs"]
-                FIFOA["4× FIFO A<br/>(Depth: 4)<br/>8-bit signed data"]
-                FIFOB["4× FIFO B<br/>(Depth: 4)<br/>8-bit signed data"]
-            end
-
-            subgraph MACGrid["MAC Grid"]
-                MAC00["MAC[0,0]"]
-                MAC01["MAC[0,1]"]
-                MAC02["MAC[0,2]"]
-                MAC03["MAC[0,3]"]
-                MAC10["MAC[1,0]"]
-                MAC11["MAC[1,1]"]
-                MAC12["MAC[1,2]"]
-                MAC13["MAC[1,3]"]
-                MAC20["MAC[2,0]"]
-                MAC21["MAC[2,1]"]
-                MAC22["MAC[2,2]"]
-                MAC23["MAC[2,3]"]
-                MAC30["MAC[3,0]"]
-                MAC31["MAC[3,1]"]
-                MAC32["MAC[3,2]"]
-                MAC33["MAC[3,3]"]
-            end
-
-            FIFOA -->|"8-bit signed<br/>(horizontal)"| MAC00
-            FIFOA -->|"8-bit signed"| MAC10
-            FIFOA -->|"8-bit signed"| MAC20
-            FIFOA -->|"8-bit signed"| MAC30
-
-            FIFOB -->|"8-bit signed<br/>(vertical)"| MAC00
-            FIFOB -->|"8-bit signed"| MAC01
-            FIFOB -->|"8-bit signed"| MAC02
-            FIFOB -->|"8-bit signed"| MAC03
-
-            MAC00 -->|rightward| MAC01
-            MAC01 -->|rightward| MAC02
-            MAC02 -->|rightward| MAC03
-
-            MAC10 -->|rightward| MAC11
-            MAC11 -->|rightward| MAC12
-            MAC12 -->|rightward| MAC13
-
-            MAC20 -->|rightward| MAC21
-            MAC21 -->|rightward| MAC22
-            MAC22 -->|rightward| MAC23
-
-            MAC30 -->|rightward| MAC31
-            MAC31 -->|rightward| MAC32
-            MAC32 -->|rightward| MAC33
-
-            MAC00 -->|downward| MAC10
-            MAC10 -->|downward| MAC20
-            MAC20 -->|downward| MAC30
-
-            MAC01 -->|downward| MAC11
-            MAC11 -->|downward| MAC21
-            MAC21 -->|downward| MAC31
-
-            MAC02 -->|downward| MAC12
-            MAC12 -->|downward| MAC22
-            MAC22 -->|downward| MAC32
-
-            MAC03 -->|downward| MAC13
-            MAC13 -->|downward| MAC23
-            MAC23 -->|downward| MAC33
-        end
-
-        FSM -->|"rdData (32-bit)"| Control
-        FSM -->|"addr (8-bit)"| BufA
-        FSM -->|"addr (8-bit)"| BufB
-        FSM -->|"addr (8-bit),<br/>wrEn, wrData (64-bit)"| BufC
-
-        BufA -->|"rdData<br/>32-bit"| FIFOA
-        BufB -->|"rdData<br/>32-bit"| FIFOB
-
-        FSM -->|"rdEnA[3:0],<br/>rdEnB[3:0],<br/>stopRead,<br/>sysReset"| SysArray
-
-        MACGrid -->|"matOut[3:0][3:0]<br/>16× 21-bit accumulators"| FSM
-    end
-
-    ExtIO["External Interface<br/><br/>Inputs:<br/>• start: 1-bit<br/>• m, k, n: 4-bit each<br/><br/>Output:<br/>• done: 1-bit"] <-->|"Control signals"| FSM
-
-    style TPUTop fill:#e1f5ff
-    style Control fill:#fff4e1
-    style Buffers fill:#f0f0f0
-    style SysArray fill:#e8f5e9
-    style FIFOs fill:#fff9c4
-    style MACGrid fill:#c8e6c9
+```
++-----------------------------------------------------------------------------------+
+| TPUTop Module                                                                     |
+|                                                                                   |
+|  +---------------------------+       +-----------------------------------------+  |
+|  | TPU Control Unit (FSM)    |<----->| Global Buffers                          |  |
+|  |                           |       |                                         |  |
+|  | States: IDLE, IDLE2,      |       | +----------+ +----------+ +-----------+ |  |
+|  |         CALCULATE, WRITE, |       | | Buffer A | | Buffer B | | Buffer C  | |  |
+|  |         FINISH            |       | | (In A)   | | (In B)   | | (Out)     | |  |
+|  |                           |       | | 256x32b  | | 256x32b  | | 256x64b   | |  |
+|  | Counters: cnt, addr,      |       | +----------+ +----------+ +-----------+ |  |
+|  |           writeCnt        |       |      |            |            ^        |  |
+|  +---------------------------+       +------+------------+------------+--------+  |
+|             ^      |                        |            |            |           |
+|             |      | Control                | rdData     | rdData     | wrData    |
+|             |      | Signals                | (A)        | (B)        |           |
+|             v      v                        v            v            |           |
+|  +--------------------------------------------------------------------+--------+  |
+|  | Systolic Array (4x4)                                               |        |  |
+|  |                                                                    |        |  |
+|  |  +------------------+    +------------------+                      |        |  |
+|  |  | Input FIFOs A    |    | Input FIFOs B    |                      |        |  |
+|  |  | (Horizontal)     |    | (Vertical)       |                      |        |  |
+|  |  +--------+---------+    +--------+---------+                      |        |  |
+|  |           |                       |                                |        |  |
+|  |           v                       v                                |        |  |
+|  |  +--------------------------------------------------+              |        |  |
+|  |  | MAC Grid (4x4)                                   |              |        |  |
+|  |  |                                                  |              |        |  |
+|  |  |  [MAC00]->[MAC01]->[MAC02]->[MAC03]              |              |        |  |
+|  |  |    |      |      |      |                        |              |        |  |
+|  |  |    v      v      v      v                        |              |        |  |
+|  |  |  [MAC10]->[MAC11]->[MAC12]->[MAC13]              |              |        |  |
+|  |  |    |      |      |      |                        |              |        |  |
+|  |  |    v      v      v      v                        |              |        |  |
+|  |  |  [MAC20]->[MAC21]->[MAC22]->[MAC23]              |              |        |  |
+|  |  |    |      |      |      |                        |              |        |  |
+|  |  |    v      v      v      v                        |              |        |  |
+|  |  |  [MAC30]->[MAC31]->[MAC32]->[MAC33]              |              |        |  |
+|  |  |                                                  |              |        |  |
+|  |  +------------------------+-------------------------+              |        |  |
+|  |                           |                                        |        |  |
+|  +---------------------------+----------------------------------------+        |  |
+|                              |                                                 |  |
+|                              | Results (16x 21-bit accumulators)               |  |
+|                              v                                                 |  |
+|  (Feedback to Control/Buffers for Writeback) ----------------------------------+  |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+      ^
+      | External Interface
+      | (start, m, k, n, done)
 ```
 
 ### MAC Unit Architecture
@@ -118,107 +69,95 @@ Each MAC (Multiply-Accumulate) unit contains:
 - **Operation**: `accumulator += upIn × leftIn`
 - **Data flow**: Systolic (inputs forwarded to neighboring MACs)
 
-```mermaid
-graph LR
-    subgraph MACUnit["MAC Unit"]
-        upIn["upIn<br/>8-bit signed"] -->|register| upReg["upReg<br/>8-bit"]
-        leftIn["leftIn<br/>8-bit signed"] -->|register| leftReg["leftReg<br/>8-bit"]
-
-        upIn --> mult["Multiplier<br/>8×8 bit"]
-        leftIn --> mult
-
-        mult -->|"product<br/>16-bit"| add["Adder<br/>21-bit"]
-        accReg["Accumulator<br/>21-bit signed"] --> add
-        add --> accReg
-
-        upReg --> upOut["upOut<br/>8-bit signed"]
-        leftReg --> leftOut["leftOut<br/>8-bit signed"]
-        accReg --> matOut["matOut<br/>21-bit signed"]
-
-        sysReset["sysReset"] -.->|clear| accReg
-        sysReset -.->|clear| upReg
-        sysReset -.->|clear| leftReg
-    end
-
-    style MACUnit fill:#c8e6c9
+```
+                      +---------+
+      upIn (8-bit) -->| upReg   |--+--> upOut (8-bit)
+                      +---------+  |
+                                   v
+                              +--------+
+                              | Mult   |
+                              | (8x8)  |
+                              +--------+
+                                   |
+                      +---------+  | product (16-bit)
+    leftIn (8-bit) -->| leftReg |  |
+                      +----+----+  v
+                           |  +--------+
+                           |  | Adder  |<---+
+    leftOut (8-bit) <------+  +--------+    |
+                                   |        |
+                                   v        |
+                              +---------+   |
+                              | AccReg  |---+
+                              | (21-bit)|
+                              +---------+
+                                   |
+                                   v
+                             matOut (21-bit)
 ```
 
 ## TPU Control State Machine
 
 The TPUControl FSM orchestrates the entire computation pipeline:
 
-```mermaid
-stateDiagram-v2
-    [*] --> sIdle
-
-    sIdle --> sIdle2: start asserted
-    sIdle2 --> sCalculate: Initialize
-    sCalculate --> sCalculate: cnt != k+7
-    sCalculate --> sWrite: cnt = k+7 (cntEnd)
-    sWrite --> sWrite: writeCnt < N-1
-    sWrite --> sFinish: writeCnt = N-1
-    sFinish --> sIdle: Done
-
-    sIdle: IDLE
-    sIdle: Wait for start signal
-
-    sIdle2: IDLE2
-    sIdle2: One-cycle initialization
-    sIdle2: cnt ← 0, addrA/B/C ← 0
-
-    sCalculate: CALCULATE
-    sCalculate: Read matrices, feed systolic array
-    sCalculate: cnt ← cnt + 1
-    sCalculate: stopRead = (cnt>k OR cnt=0)
-    sCalculate: startFifo at cnt=2
-    sCalculate: stopFifo at cnt=k+3
-    sCalculate: Staggered rdEnA/rdEnB enables
-
-    sWrite: WRITE
-    sWrite: Write matOut to buffer C
-    sWrite: Pack 4×16-bit → 64-bit word
-    sWrite: writeCnt ← writeCnt + 1
-    sWrite: addrC ← addrC + 1
-
-    sFinish: FINISH
-    sFinish: Assert done signal
-    sFinish: sysReset ← 1
+```
+           +-------+
+           | Start |
+           +-------+
+               |
+               v
+      +-----------------+
+      | IDLE            | <-----------------------+
+      | Wait for start  |                         |
+      +--------+--------+                         |
+               | start asserted                   |
+               v                                  |
+      +-----------------+                         |
+      | IDLE2           |                         |
+      | Init counters   |                         |
+      +--------+--------+                         |
+               |                                  |
+               v                                  |
+      +-----------------+    cnt != k+7           |
+ +--> | CALCULATE       | ------------------+     |
+ |    | Feed Systolic   |                   |     |
+ |    | Array           | <-----------------+     |
+ |    +--------+--------+                         |
+ |             | cnt == k+7                       |
+ |             v                                  |
+ |    +-----------------+    writeCnt < N-1       |
+ |    | WRITE           | ------------------+     |
+ |    | Flush to Buf C  |                   |     |
+ |    +--------+--------+ <-----------------+     |
+ |             | writeCnt == N-1                  |
+ |             v                                  |
+ |    +-----------------+                         |
+ |    | FINISH          |                         |
+ |    | Assert done     |                         |
+ |    +--------+--------+                         |
+ |             |                                  |
+ +-------------+----------------------------------+
 ```
 
 ## TPU Interface
 
 ### Top-Level Interface (TPUTop)
 
-```mermaid
-graph LR
-    subgraph External["External Signals"]
-        direction TB
-        start["start<br/>Input<br/>1-bit<br/><br/>Begin computation"]
-        m["m<br/>Input<br/>4-bit<br/><br/>Matrix A rows"]
-        k["k<br/>Input<br/>4-bit<br/><br/>Common dimension"]
-        n["n<br/>Input<br/>4-bit<br/><br/>Matrix B columns"]
-        done["done<br/>Output<br/>1-bit<br/><br/>Computation complete"]
-    end
-
-    subgraph TPU["TPUTop Module"]
-        direction TB
-        control["TPU Control<br/>(FSM)"]
-        buffers["Global Buffers<br/>A, B, C"]
-        systolic["Systolic Array<br/>(4×4 MAC grid)"]
-    end
-
-    start --> control
-    m --> control
-    k --> control
-    n --> control
-    control --> done
-
-    control <--> buffers
-    control <--> systolic
-    buffers <--> systolic
-
-    style External fill:#fff4e1
-    style TPU fill:#e1f5ff
+```
+       External Signals                     TPUTop Module
+  +------------------------+          +-----------------------+
+  |                        |          |                       |
+  |  start (1-bit) --------+--------->|  TPU Control          |
+  |                        |          |                       |
+  |  m (4-bit) ------------+--------->|                       |
+  |                        |          |                       |
+  |  k (4-bit) ------------+--------->|                       |
+  |                        |          |                       |
+  |  n (4-bit) ------------+--------->|                       |
+  |                        |          |                       |
+  |           done (1-bit) |<---------+                       |
+  |                        |          |                       |
+  +------------------------+          +-----------------------+
 ```
 
 ### Internal Interfaces
