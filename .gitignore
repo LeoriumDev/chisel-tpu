@@ -25,6 +25,7 @@ generated/
 *.vcd
 *.fst
 test_run_dir/
+verilator_testbench/obj_dir/
 
 # OS files
 .DS_Store
